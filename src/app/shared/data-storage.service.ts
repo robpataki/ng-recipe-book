@@ -17,6 +17,7 @@ export class DataStorageService {
 
   fetchRecipes(): Observable<Recipe[]> {
     const _userId = this.authService.userId;
+    
     return this.http.get<Recipe[]>(`${DataStorageService.API_URL}/${_userId}/recipes.json`)
     .pipe(
       map(recipes => {

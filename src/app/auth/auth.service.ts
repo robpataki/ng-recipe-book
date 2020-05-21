@@ -25,9 +25,14 @@ export class AuthService {
 
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   tokenExpirationTimer: any;
+  _userId: string;
 
   constructor(private http: HttpClient,
               private router: Router) {}
+
+  get userId(): string {
+    return this._userId;
+  }
 
   signup(email: string, password: string): Observable<AuthResponseData> {
     const signupData = {
@@ -105,16 +110,15 @@ export class AuthService {
     );
 
     if (loadedUser.token) {
+      this._userId = loadedUser.id;
+
       this.user.next(loadedUser);
-      
       const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
       this.autoLogout(expirationDuration);
     }
   }
 
   autoLogout(expirationDuration: number): void {
-    console.log('Auth expiration duration: ', expirationDuration);
-
     this.tokenExpirationTimer = setTimeout(() => {
       this.logout();
     }, expirationDuration);

@@ -5,6 +5,7 @@ import { map, tap, take, exhaustMap } from 'rxjs/operators';
 import { Recipe } from '../recipes/recipe.model';
 import { RecipeService } from '../recipes/recipe.service';
 import { AuthService } from '../auth/auth.service';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
@@ -32,15 +33,9 @@ export class DataStorageService {
     );
   }
 
-  storeRecipes() {
+  storeRecipes(): Observable<Recipe[]> {
+    const _userId = this.authService.userId;
     const recipes = this.recipeService.getRecipes();
-    this.http
-      .put(
-        `${DataStorageService.API_URL}/recipes.json`,
-        recipes
-      )
-      .subscribe(response => {
-        console.log(response);
-      });
+    return this.http.put<Recipe[]>(`${DataStorageService.API_URL}/${_userId}/recipes.json`, recipes);
   }
 }

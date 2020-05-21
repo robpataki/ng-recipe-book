@@ -19,10 +19,7 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const recipes = this.recipesService.getRecipes();
 
-    console.log('INIT')
-
     if (recipes.length === 0) {
-      console.log('INIT 2')
       return this.dataStorageService.fetchRecipes();
     } else {
       return recipes;

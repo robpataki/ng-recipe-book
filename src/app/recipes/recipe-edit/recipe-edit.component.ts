@@ -41,9 +41,7 @@ export class RecipeEditComponent implements OnInit, OnDestroy {
     this.recipeServiceSub = this.recipeService.recipesChanged
     .subscribe(
       (recipes: Recipe[]) => {
-        this.dataStorageService.storeRecipes().subscribe(dataRes => {
-          console.log(dataRes);
-        });
+        this.dataStorageService.storeRecipes().subscribe(dataRes => {});
       }
     );
   }

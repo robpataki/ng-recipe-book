@@ -7,12 +7,15 @@
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li routerLinkActive="active" *ngIf="isUserAuthenticated"><a routerLink="/recipes" >Recipes</a></li>
+        <li routerLinkActive="active" *ngIf="isUserAuthenticated"><a routerLink="/shopping-list">Shopping List</a></li>
         <li routerLinkActive="active" *ngIf="!isUserAuthenticated"><a routerLink="/auth">Authenticate</a></li>
-        <li routerLinkActive="active"><a routerLink="/shopping-list">Shopping List</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li *ngIf="isUserAuthenticated">
-          <a (click)="onLogout()" style="cursor: pointer;">Logout</a>
+          <a routerLink="/account">Account</a>
+        </li>
+        <li *ngIf="isUserAuthenticated">
+          <a (click)="onLogout()">Logout</a>
         </li>
       </ul>
     </div>

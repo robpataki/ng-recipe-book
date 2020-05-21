@@ -13,6 +13,5 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.authService.autoLogin();
-    this.loggingService.printLog('Hello from the App component');
   }
 }

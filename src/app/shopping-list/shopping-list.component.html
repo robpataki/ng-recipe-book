@@ -1,16 +1,23 @@
 <div class="row">
   <div class="col-xs-10">
-    <app-shopping-edit></app-shopping-edit>
+    <div>
+      <h2>Shopping list</h2>
+
+      <ul class="list-group" *ngIf="!!ingredients.length">
+        <a
+          class="list-group-item"
+          style="cursor: pointer"
+          *ngFor="let ingredient of ingredients; let i = index"
+          (click)="onEditItem(i)"
+        >
+          {{ ingredient.name }} - {{ ingredient.amount }}
+        </a>
+      </ul>
+
+      <p class="lead" *ngIf="!ingredients.length">Your shopping list is empty</p>
+    </div>
     <hr>
-    <ul class="list-group">
-      <a
-        class="list-group-item"
-        style="cursor: pointer"
-        *ngFor="let ingredient of ingredients; let i = index"
-        (click)="onEditItem(i)"
-      >
-        {{ ingredient.name }} ({{ ingredient.amount }})
-      </a>
-    </ul>
+    <h2>Add a new item</h2>
+    <app-shopping-edit></app-shopping-edit>
   </div>
 </div>

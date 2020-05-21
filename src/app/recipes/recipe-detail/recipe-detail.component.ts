@@ -5,6 +5,8 @@ import { map, tap } from 'rxjs/operators';
 import { Recipe } from '../recipe.model';
 import { RecipeService } from '../recipe.service';
 import { DataStorageService } from 'src/app/shared/data-storage.service';
+import { ShoppingListService } from 'src/app/shopping-list/shopping-list.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -15,8 +17,10 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   recipe: Recipe;
   id: number;
   isLoading: boolean = false;
+  slIngredientsChangedSub: Subscription;
   
   constructor(private recipeService: RecipeService,
+              private slService: ShoppingListService,
               private dataStorageService: DataStorageService,
               private route: ActivatedRoute,
               private router: Router) {
@@ -30,10 +34,15 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
           this.recipe = this.recipeService.getRecipe(this.id);
         }
       );
+
+    this.slIngredientsChangedSub = this.slService.ingredientsChanged.subscribe(ingredients => {
+      this.dataStorageService.storeIngredients().subscribe(dataRes => {});
+    });
   }
 
   ngOnDestroy(): void {
     this.isLoading = false;
+    this.slIngredientsChangedSub.unsubscribe();
   }
 
   onAddToShoppingList(): void {

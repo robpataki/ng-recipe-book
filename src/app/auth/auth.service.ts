@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 
 import { environment } from '../../environments/environment';
 import { RecipeService } from '../recipes/recipe.service';
+import { ShoppingListService } from '../shopping-list/shopping-list.service';
 
 export interface AuthResponseData {
   kind: string;
@@ -30,7 +31,8 @@ export class AuthService {
 
   constructor(private http: HttpClient,
               private router: Router,
-              private recipeService: RecipeService) {}
+              private recipeService: RecipeService,
+              private slService: ShoppingListService) {}
 
   get userId(): string {
     return this._userId;
@@ -91,7 +93,9 @@ export class AuthService {
     this.tokenExpirationTimer = null;
 
     // Clear the user data from memory
-    this.recipeService.resetRecipes();
+    this.recipeService.reset();
+    this.slService.reset();
+
   }
 
   autoLogin(): void {

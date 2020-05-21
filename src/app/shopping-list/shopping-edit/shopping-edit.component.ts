@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 
 import { Ingredient } from '../../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list.service';
+import { DataStorageService } from 'src/app/shared/data-storage.service';
 
 @Component({
   selector: 'app-shopping-edit',
@@ -17,15 +18,17 @@ import { ShoppingListService } from '../shopping-list.service';
 })
 export class ShoppingEditComponent implements OnInit, OnDestroy {
   @ViewChild('f', { static: false }) slForm: NgForm;
-  subscription: Subscription;
+  slStartedEditingSub: Subscription;
+  slIngredientsChangedSub: Subscription;
   editMode = false;
   editedItemIndex: number;
   editedItem: Ingredient;
 
-  constructor(private slService: ShoppingListService) { }
+  constructor(private slService: ShoppingListService,
+              private dataStorageService: DataStorageService) { }
 
   ngOnInit() {
-    this.subscription = this.slService.startedEditing
+    this.slStartedEditingSub = this.slService.startedEditing
       .subscribe(
         (index: number) => {
           this.editedItemIndex = index;
@@ -35,6 +38,13 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
             name: this.editedItem.name,
             amount: this.editedItem.amount
           })
+        }
+      );
+
+    this.slIngredientsChangedSub = this.slService.ingredientsChanged
+      .subscribe(
+        (ingredients: Ingredient[]) => {
+          this.dataStorageService.storeIngredients().subscribe(dataRes => {});
         }
       );
   }
@@ -62,7 +72,8 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.slStartedEditingSub.unsubscribe();
+    this.slIngredientsChangedSub.unsubscribe();
   }
 
 }

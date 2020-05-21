@@ -12,21 +12,19 @@ import { LoggingService } from '../logging.service';
 })
 export class ShoppingListComponent implements OnInit, OnDestroy {
   ingredients: Ingredient[];
-  private subscription: Subscription;
+  slIngredientsChangedSub: Subscription;
 
   constructor(private slService: ShoppingListService,
-            private loggingService: LoggingService) { }
+              private loggingService: LoggingService) { }
 
   ngOnInit() {
     this.ingredients = this.slService.getIngredients();
-    this.subscription = this.slService.ingredientsChanged
+    this.slIngredientsChangedSub = this.slService.ingredientsChanged
       .subscribe(
         (ingredients: Ingredient[]) => {
           this.ingredients = ingredients;
         }
       );
-
-    this.loggingService.printLog('Hello from the ShoppingList component');
   }
 
   onEditItem(index: number) {
@@ -34,6 +32,6 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.slIngredientsChangedSub.unsubscribe();
   }
 }

@@ -114,9 +114,9 @@ export class AuthService {
       new Date(userData._tokenExpirationDate)
     );
 
-    this._userId = loadedUser.id;
-
     if (loadedUser.token) {
+      this._userId = loadedUser.id;
+      
       this.user.next(loadedUser);
       const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
       this.autoLogout(expirationDuration);

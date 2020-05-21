@@ -31,13 +31,16 @@
       </div>
     </div>
   </div>
+  <br>
   <div class="row">
     <div class="col-xs-12">
       {{ recipe.description }}
     </div>
   </div>
-  <div class="row">
+  <br>
+  <div class="row" *ngIf="!!recipe.ingredients.length">
     <div class="col-xs-12">
+      <h3>Ingredients</h3>
       <ul class="list-group">
         <li
           class="list-group-item"

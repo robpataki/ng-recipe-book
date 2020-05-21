@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
-  static API_URL: string = 'https://ng-recipe-book-c3ee6.firebaseio.com/';
+  static API_URL: string = 'https://ng-recipe-book-c3ee6.firebaseio.com';
 
   constructor(private http: HttpClient,
               private recipeService: RecipeService,

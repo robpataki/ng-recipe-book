@@ -6,6 +6,7 @@ import { User } from './user.model';
 import { Router } from '@angular/router';
 
 import { environment } from '../../environments/environment';
+import { RecipeService } from '../recipes/recipe.service';
 
 export interface AuthResponseData {
   kind: string;
@@ -28,7 +29,8 @@ export class AuthService {
   _userId: string;
 
   constructor(private http: HttpClient,
-              private router: Router) {}
+              private router: Router,
+              private recipeService: RecipeService) {}
 
   get userId(): string {
     return this._userId;
@@ -87,6 +89,9 @@ export class AuthService {
       clearTimeout(this.tokenExpirationTimer);
     }
     this.tokenExpirationTimer = null;
+
+    // Clear the user data from memory
+    this.recipeService.resetRecipes();
   }
 
   autoLogin(): void {
@@ -110,8 +115,6 @@ export class AuthService {
     );
 
     if (loadedUser.token) {
-      this._userId = loadedUser.id;
-
       this.user.next(loadedUser);
       const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
       this.autoLogout(expirationDuration);
@@ -128,6 +131,8 @@ export class AuthService {
     const expirationDate = new Date(new Date().getTime() + (+expiresIn * 1000));
     const user = new User(email, localId, idToken, expirationDate);
     
+    this._userId = localId;
+
     this.user.next(user);
     this.autoLogout(expiresIn * 1000);
 

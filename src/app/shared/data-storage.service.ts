@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, tap, take, exhaustMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { map, tap } from 'rxjs/operators';
 
 import { Recipe } from '../recipes/recipe.model';
 import { RecipeService } from '../recipes/recipe.service';
@@ -15,17 +15,20 @@ export class DataStorageService {
               private recipeService: RecipeService,
               private authService: AuthService) {}
 
-  fetchRecipes() {
-    // Get the user object from the service without having to unsubscribe
-    return this.http.get<Recipe[]>(`${DataStorageService.API_URL}/recipes.json`)
+  fetchRecipes(): Observable<Recipe[]> {
+    const _userId = this.authService.userId;
+    return this.http.get<Recipe[]>(`${DataStorageService.API_URL}/${_userId}/recipes.json`)
     .pipe(
       map(recipes => {
-        return recipes.map(recipe => {
-          return {
-            ...recipe,
-            ingredients: recipe.ingredients ? recipe.ingredients : []
-          };
-        });
+        if (!!recipes) {
+          return recipes.map(recipe => {
+            return {
+              ...recipe,
+              ingredients: recipe.ingredients ? recipe.ingredients : []
+            };
+          });
+        }
+        return [];
       }),
       tap(recipes => {
         this.recipeService.setRecipes(recipes);

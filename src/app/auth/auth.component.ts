@@ -48,7 +48,6 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
 
     this.subscription = authObservable.subscribe(resData => {
-      this.isLoading = false;
       this.router.navigate(['/recipes']);
     }, errorMessage => {
       this.error = errorMessage;
@@ -59,6 +58,8 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.isLoading = false;
+    
     if (this.subscription) {
       this.subscription.unsubscribe();
     }

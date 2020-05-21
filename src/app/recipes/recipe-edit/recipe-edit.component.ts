@@ -1,22 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { tap } from 'rxjs/operators';
 
 import { RecipeService } from '../recipe.service';
+import { Recipe } from '../recipe.model';
+import { Subscription } from 'rxjs';
+import { DataStorageService } from 'src/app/shared/data-storage.service';
 
 @Component({
   selector: 'app-recipe-edit',
   templateUrl: './recipe-edit.component.html',
   styleUrls: ['./recipe-edit.component.css']
 })
-export class RecipeEditComponent implements OnInit {
+export class RecipeEditComponent implements OnInit, OnDestroy {
   id: number;
   editMode = false;
   recipeForm: FormGroup;
+  recipeServiceSub: Subscription;
+  isLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private recipeService: RecipeService,
+    private dataStorageService: DataStorageService,
     private router: Router
   ) {}
 
@@ -30,6 +37,19 @@ export class RecipeEditComponent implements OnInit {
       this.editMode = params['id'] != null;
       this.initForm();
     });
+
+    this.recipeServiceSub = this.recipeService.recipesChanged
+    .subscribe(
+      (recipes: Recipe[]) => {
+        this.dataStorageService.storeRecipes().subscribe(dataRes => {
+          console.log(dataRes);
+        });
+      }
+    );
+  }
+  ngOnDestroy(): void {
+    this.isLoading = false;
+    this.recipeServiceSub.unsubscribe();
   }
 
   onSubmit() {
@@ -38,12 +58,15 @@ export class RecipeEditComponent implements OnInit {
     //   this.recipeForm.value['description'],
     //   this.recipeForm.value['imagePath'],
     //   this.recipeForm.value['ingredients']);
+    this.isLoading = true;
     if (this.editMode) {
       this.recipeService.updateRecipe(this.id, this.recipeForm.value);
+      this.router.navigate(['../'], { relativeTo: this.route });
     } else {
       this.recipeService.addRecipe(this.recipeForm.value);
-    }
-    this.onCancel();
+      const recipeId = this.recipeService.getRecipes().length - 1;
+      this.router.navigate(['../', recipeId], { relativeTo: this.route });
+    }    
   }
 
   onAddIngredient() {
@@ -63,6 +86,7 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onCancel() {
+    this.isLoading = false;
     this.router.navigate(['../'], { relativeTo: this.route });
   }
 

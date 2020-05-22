@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { RecipeService } from '../recipes/recipe.service';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import { AccountService } from '../account/account.service';
 
 export interface AuthResponseData {
   kind: string;
@@ -28,14 +29,20 @@ export class AuthService {
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   tokenExpirationTimer: any;
   _userId: string;
+  _email: string;
 
   constructor(private http: HttpClient,
               private router: Router,
               private recipeService: RecipeService,
-              private slService: ShoppingListService) {}
+              private slService: ShoppingListService,
+              private accountService: AccountService) {}
 
   get userId(): string {
     return this._userId;
+  }
+
+  get email(): string {
+    return this._email;
   }
 
   signup(email: string, password: string): Observable<AuthResponseData> {
@@ -95,7 +102,7 @@ export class AuthService {
     // Clear the user data from memory
     this.recipeService.reset();
     this.slService.reset();
-
+    this.accountService.reset();
   }
 
   autoLogin(): void {
@@ -120,6 +127,7 @@ export class AuthService {
 
     if (loadedUser.token) {
       this._userId = loadedUser.id;
+      this._email = loadedUser.email;
       
       this.user.next(loadedUser);
       const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
@@ -138,6 +146,7 @@ export class AuthService {
     const user = new User(email, localId, idToken, expirationDate);
     
     this._userId = localId;
+    this._email = email;
 
     this.user.next(user);
     this.autoLogout(expiresIn * 1000);

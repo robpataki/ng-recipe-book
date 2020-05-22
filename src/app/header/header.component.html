@@ -11,7 +11,9 @@
         <li routerLinkActive="active" *ngIf="!isUserAuthenticated"><a routerLink="/auth">Authenticate</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li *ngIf="isUserAuthenticated">
+        <li 
+          *ngIf="isUserAuthenticated"
+          routerLinkActive="active">
           <a routerLink="/account">Account</a>
         </li>
         <li *ngIf="isUserAuthenticated">

@@ -8,6 +8,8 @@ import { AuthService } from '../auth/auth.service';
 import { Observable } from 'rxjs';
 import { Ingredient } from './ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import { AccountService } from '../account/account.service';
+import { Account } from '../account/account.model';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
@@ -16,7 +18,28 @@ export class DataStorageService {
   constructor(private http: HttpClient,
               private recipeService: RecipeService,
               private shoppingListService: ShoppingListService,
-              private authService: AuthService) {}
+              private authService: AuthService,
+              private accountService: AccountService) {}
+
+  fetchAccount(): Observable<Account> {
+    const _userId = this.authService.userId;
+    return this.http.get<Account>(`${DataStorageService.API_URL}/${_userId}/account.json`)
+    .pipe(
+      tap(account => {
+        let userAccount = account;
+        if (!account) {
+          userAccount = new Account('', '', '', '');
+        }
+        this.accountService.setAccount(userAccount);
+      })
+    );
+  }
+
+  storeAccount(): Observable<Account> {
+    const _userId = this.authService.userId;
+    const account = this.accountService.getAccount();
+    return this.http.put<Account>(`${DataStorageService.API_URL}/${_userId}/account.json`, account);
+  }
 
   fetchRecipes(): Observable<Recipe[]> {
     const _userId = this.authService.userId;

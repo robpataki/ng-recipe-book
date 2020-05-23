@@ -22,9 +22,9 @@ export interface AuthResponseData {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  AUTH_API_SIGNIN_URL: string = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
-  AUTH_API_SIGNUP_URL: string = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp';
-  API_KEY: string = environment.firebaseAPIKey;
+  AUTH_API_SIGNIN_URL: string = environment.firebaseConfig.signInUrl;
+  AUTH_API_SIGNUP_URL: string = environment.firebaseConfig.signUpUrl;
+  API_KEY: string = environment.firebaseConfig.apiKey;
 
   user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   tokenExpirationTimer: any;

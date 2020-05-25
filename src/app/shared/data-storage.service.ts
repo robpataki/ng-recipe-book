@@ -10,7 +10,8 @@ import { Observable } from 'rxjs';
 import { Ingredient } from './ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
 import { AccountService } from '../account/account.service';
-import { Account } from '../account/account.model';
+import { User } from './user.model';
+import { UsersService } from '../users/users.service';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
@@ -20,26 +21,48 @@ export class DataStorageService {
               private recipeService: RecipeService,
               private shoppingListService: ShoppingListService,
               private authService: AuthService,
-              private accountService: AccountService) {}
+              private accountService: AccountService,
+              private usersService: UsersService) {}
 
-  fetchAccount(): Observable<Account> {
+  // TODO - REFACTOR `Account` to User
+  fetchUser(): Observable<User> {
     const _userId = this.authService.userId;
-    return this.http.get<Account>(`${this.API_URL}/${_userId}/account.json`)
+    return this.http.get<User>(`${this.API_URL}/users/${_userId}.json`)
     .pipe(
-      tap(account => {
-        let userAccount = account;
-        if (!account) {
-          userAccount = new Account('', '', '', '');
+      tap(user => {
+        let userAccount = user;
+        if (!user) {
+          userAccount = new User('', '', '', '', '', '');
         }
         this.accountService.setAccount(userAccount);
       })
     );
   }
 
-  storeAccount(): Observable<Account> {
+  storeUser(): Observable<User> {
     const _userId = this.authService.userId;
     const account = this.accountService.getAccount();
-    return this.http.put<Account>(`${this.API_URL}/${_userId}/account.json`, account);
+    return this.http.put<User>(`${this.API_URL}/users/${_userId}.json`, account);
+  }
+
+  fetchUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.API_URL}/users.json`)
+    .pipe(
+      tap(users => {
+        let _users = [];
+        for (let r in users) {
+          _users.push(new User(
+            users[r].firstName, 
+            users[r].lastName, 
+            users[r].displayName, 
+            users[r].organisation,
+            users[r].email,
+            users[r].photoUrl
+          ));
+        }
+        this.usersService.setUsers(_users);
+      })
+    );
   }
 
   fetchRecipes(): Observable<Recipe[]> {

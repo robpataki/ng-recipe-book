@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewContainerRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
-import { finalize, flatMap, take } from 'rxjs/operators';
 import { AngularFireStorage, AngularFireStorageReference } from '@angular/fire/storage';
 
 import { AccountService } from './account.service';
-import { Account } from './account.model';
+import { User } from '../shared/user.model';
 import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
 import { UploadTaskSnapshot } from '@angular/fire/storage/interfaces';
@@ -16,8 +15,10 @@ import { UploadTaskSnapshot } from '@angular/fire/storage/interfaces';
   styleUrls: ['./account.component.css']
 })
 export class AccountComponent implements OnInit, OnDestroy {
+  @ViewChild('profilePhoto', {static: false}) photoInput: ElementRef<HTMLElement>;
+
   accountForm: FormGroup;
-  account: Account;
+  account: User;
   accountChangedSub: Subscription;
   photoToUpload: File;
   isLoading: boolean = false;
@@ -25,8 +26,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   fileRef: AngularFireStorageReference;
   uploadPercent: Observable<number>;
   uploadComplete: boolean = false;
-
-  @ViewChild('profilePhoto', {static: false}) photoInput: ViewChild;
 
   constructor(private accountService: AccountService,
               private dataStorageService: DataStorageService,
@@ -38,10 +37,10 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     this.accountChangedSub = this.accountService.accountChanged
     .subscribe(
-      (account: Account) => {
+      (account: User) => {
         this.account = account;
 
-        this.dataStorageService.storeAccount().subscribe(account => {
+        this.dataStorageService.storeUser().subscribe(account => {
           this.isLoading = false;
         });
       }
@@ -58,16 +57,17 @@ export class AccountComponent implements OnInit, OnDestroy {
   private initForm() {
     let firstName = this.account.firstName;
     let lastName = this.account.lastName;
+    let displayName = this.account.displayName;
     let organisation = this.account.organisation;
-    let email = this.authService.email; // We don't want to submit email, only showing it on the page
+    let email = this.account.email || this.authService.email; // Load from auth data as default
 
     // Get existing data from Auth service (email), and account service (first name, last name)
-
     this.accountForm = new FormGroup({
       firstName: new FormControl(firstName, Validators.required),
       lastName: new FormControl(lastName, Validators.required),
+      displayName: new FormControl(displayName, Validators.required),
       profilePhoto: new FormControl(null),
-      email: new FormControl({ value: email, disabled: true }, [Validators.required, Validators.email]),
+      email: new FormControl({ value: email, disabled: !!email }, [Validators.required, Validators.email]),
       organisation: new FormControl(organisation, [Validators.required])
     });
   }
@@ -75,7 +75,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     this.isLoading = true;
 
-    // This looks ridiculous...
     if (this.photoToUpload) {
       this.uploadFile(this.photoToUpload).subscribe((data) => {
         console.log('[Account Component] next(data) - data: ', data);
@@ -84,11 +83,13 @@ export class AccountComponent implements OnInit, OnDestroy {
       }, () => {
         console.log('[Account Component] complete');
         this.fileRef.getDownloadURL().subscribe(downloadUrl => {
-          this.uploadComplete = true;
+          console.log('Upload complete 2 - this: ', this);
 
+          this.uploadComplete = true;
           this.photoToUpload = null;
+          
           // Reset the value of the file input control
-          (<HTMLInputElement>this.accountForm.get('profilePhoto')).value = '';
+          (this.accountForm.controls.profilePhoto as HTMLInputElement).value = '';
           
           this.storeAccount(downloadUrl);
         });
@@ -99,10 +100,12 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   storeAccount(newPhotoUrl?: string): void {
-    const account: Account = new Account(
+    const account: User = new User(
       this.accountForm.value['firstName'],
       this.accountForm.value['lastName'],
+      this.accountForm.value['displayName'],
       this.accountForm.value['organisation'],
+      this.accountForm.getRawValue()['email'],
       newPhotoUrl || this.account.photoUrl
     );
 
@@ -110,7 +113,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   onSelectPhoto(): void {
-    (<HTMLInputElement>this.photoInput.nativeElement).click();
+    (<HTMLElement>this.photoInput.nativeElement).click();
   }
 
   onPhotoChanged(event): void {
@@ -132,7 +135,7 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     // observe percentage changes
     this.uploadPercent = task.percentageChanges();
-    
+
     // get notified when the download URL is available
     return task.snapshotChanges();
   }

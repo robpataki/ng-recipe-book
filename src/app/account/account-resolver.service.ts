@@ -3,12 +3,12 @@ import {
   Resolve,
 } from '@angular/router';
 
-import { Account } from './account.model';
+import { User } from '../shared/user.model';
 import { DataStorageService } from '../shared/data-storage.service';
 import { AccountService } from './account.service';
 
 @Injectable({ providedIn: 'root' })
-export class AccountResolverService implements Resolve<Account> {
+export class AccountResolverService implements Resolve<User> {
   constructor(
     private dataStorageService: DataStorageService,
     private accountService: AccountService
@@ -19,7 +19,7 @@ export class AccountResolverService implements Resolve<Account> {
     console.log('[Account Resolver] - account: ', account);
 
     if (!account) {
-      return this.dataStorageService.fetchAccount();
+      return this.dataStorageService.fetchUser();
     } else {
       return account;
     }

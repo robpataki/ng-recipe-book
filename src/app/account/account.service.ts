@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Account } from './account.model';
+import { User } from '../shared/user.model';
 import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
-  account: Account;
-  accountChanged: Subject<Account> = new Subject<Account>();
+  account: User;
+  accountChanged: Subject<User> = new Subject<User>();
 
-  getAccount(): Account {
+  getAccount(): User {
     return this.account;
   }
 
-  setAccount(account: Account): void {
+  setAccount(account: User): void {
     this.account = account;
     this.accountChanged.next(this.account);
   }

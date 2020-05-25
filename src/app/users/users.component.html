@@ -1,0 +1,38 @@
+<div class="row">
+  <div class="col-xs-12 col-xs-offset-0 col-md-6">
+    <h2>Users</h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12 col-xs-offset-0 col-md-6">
+    <ul class="list-group" *ngIf="!!users.length">
+      <li
+        class="list-group-item"
+        *ngFor="let user of users; index as i">
+        <div class="user-details clearfix">
+          <div class="user-details__left">
+            <dl>
+              <div class="dl-row clearfix">
+                <dt>Name:</dt>
+                <dd><span>{{ user.firstName }}</span>&nbsp;<span>{{ user.lastName }}</span>&nbsp;<span>({{ user.displayName }})</span></dd>
+              </div>
+              <div class="dl-row clearfix">
+                <dt>Email:</dt>
+                <dd><span>{{ user.email }}</span></dd>
+              </div>
+              <div class="dl-row clearfix">
+                <dt>Organisation:</dt>
+                <dd><span>{{ user.organisation }}</span></dd>
+              </div>
+            </dl>
+          </div>
+          <div class="user-details__right">
+            <div class="user-details__photo">
+              <img src="{{ user.photoUrl }}" alt="{{ user.firstName }}'s profile photo'">
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -23,6 +23,7 @@
     "bootstrap": "3.4.1",
     "core-js": "^3.1.2",
     "firebase": "^7.14.5",
+    "jquery": "^3.5.1",
     "rxjs": "^6.0.0",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26"

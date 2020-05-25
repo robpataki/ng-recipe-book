@@ -89,7 +89,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           this.photoToUpload = null;
           
           // Reset the value of the file input control
-          (this.accountForm.controls.profilePhoto as HTMLInputElement).value = '';
+          this.accountForm.controls.profilePhoto.setValue('');
           
           this.storeAccount(downloadUrl);
         });
